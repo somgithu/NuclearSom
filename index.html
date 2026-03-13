@@ -128,20 +128,98 @@
   <!-- Publications & Materials (your requested section) -->
   <section id="publications" class="py-20">
     <div class="max-w-5xl mx-auto px-6">
-      <h2 class="text-4xl font-bold accent mb-10 text-center">Research Output & Notes</h2>
-      <div class="grid md:grid-cols-2 gap-8">
-        <!-- Example 1: Conference Paper -->
-        <div class="glass p-8 rounded-2xl hover:border-indigo-500/50 transition border border-transparent">
-          <h3 class="text-xl font-semibold mb-3">Automated Python-Based Program for Gamma-Ray Spectroscopy Analysis and its application to the γ-Band in <sup>127</sup>Cs</h3>
-          <p class="text-indigo-400 mb-4">69th DAE-BRNS Symposium on Nuclear Physics (2025), Paper H23</p>
-          <p class="text-gray-300 mb-4">
-            The Python code automates gamma-ray spectral analysis for HPGe Clover and NaI(Tl) detectors — Gaussian fitting, Compton background subtraction, energy calibration, parameter extraction (centroid, FWHM, χ²), and visualization.
-          </p>
-          <div class="flex gap-6 mt-4">
-            <a href="assets/symposium-2025.pdf" class="text-indigo-400 hover:underline flex items-center gap-2" target="_blank">
-              <i class="fas fa-file-pdf"></i> View / Download Abstract
-            </a>
+     <section id="publications" class="py-20">
+  <div class="max-w-5xl mx-auto px-6">
+    <h2 class="text-4xl font-bold accent mb-10 text-center">Research Output & Notes</h2>
+    
+    <!-- List of your notes/posts will appear here -->
+    <div id="notes-list" class="grid md:grid-cols-2 gap-8 mb-12"></div>
+    
+    <!-- Full note viewer (modal/popup style) -->
+    <div id="note-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center overflow-auto">
+      <div class="bg-[#1a1a22] max-w-4xl w-full mx-4 my-8 p-8 md:p-12 rounded-2xl relative max-h-[90vh] overflow-y-auto">
+        <button onclick="closeNote()" class="absolute top-4 right-6 text-3xl text-gray-400 hover:text-white">&times;</button>
+        <h2 id="note-title" class="text-3xl font-bold accent mb-6"></h2>
+        <div id="note-content" class="prose prose-invert prose-indigo max-w-none text-gray-300 leading-relaxed"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Add these scripts at the VERY BOTTOM of your <body>, before </body> -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+  // Simple client-side list & renderer (no build step needed)
+  async function loadNotes() {
+    const notesContainer = document.getElementById('notes-list');
+    notesContainer.innerHTML = '<p class="text-center text-gray-400">Loading notes...</p>';
+
+    try {
+      // List your .md files here manually (easiest & reliable for non-coder)
+      // Add new ones as you create them — just copy-paste a new entry
+      const notes = [
+        { file: 'notes/2025-03-20-gamma-band-127cs.md', title: 'Automated Python Tools for γ-Band in 127Cs', date: 'March 20, 2025', tags: ['gamma-spectroscopy', 'python', 'conference'] },
+        { file: 'notes/2026-02-15-geant4-pet-simulation.md', title: 'GEANT4 Notes on PET Isotope Yield Simulation', date: 'February 15, 2026', tags: ['geant4', 'pet-imaging', 'simulation'] },
+        // ← Add more lines here in future, e.g.:
+        // { file: 'notes/2026-04-10-new-conference-note.md', title: 'ICNPA-2026 Takeaways', date: 'April 10, 2026', tags: ['conference', 'nuclear-physics'] },
+      ];
+
+      notesContainer.innerHTML = '';
+
+      notes.forEach(note => {
+        const card = document.createElement('div');
+        card.className = 'glass p-8 rounded-2xl hover:border-indigo-500/50 transition border border-transparent cursor-pointer';
+        card.innerHTML = `
+          <h3 class="text-xl font-semibold mb-2">${note.title}</h3>
+          <p class="text-indigo-400 mb-2 text-sm">${note.date}</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            ${note.tags.map(tag => `<span class="text-xs bg-indigo-900/40 px-2 py-1 rounded-full">${tag}</span>`).join('')}
           </div>
+          <button class="text-indigo-400 hover:underline">Read full note →</button>
+        `;
+        card.onclick = () => showNote(note.file, note.title);
+        notesContainer.appendChild(card);
+      });
+
+      if (notes.length === 0) {
+        notesContainer.innerHTML = '<p class="text-center text-gray-400">No notes added yet. Create your first .md file in /notes/ folder!</p>';
+      }
+    } catch (err) {
+      notesContainer.innerHTML = '<p class="text-red-400 text-center">Error loading notes. Check console.</p>';
+    }
+  }
+
+  async function showNote(filePath, title) {
+    const modal = document.getElementById('note-modal');
+    const titleEl = document.getElementById('note-title');
+    const contentEl = document.getElementById('note-content');
+
+    titleEl.textContent = title;
+    contentEl.innerHTML = '<p class="text-center">Loading...</p>';
+
+    modal.classList.remove('hidden');
+
+    try {
+      const resp = await fetch(filePath);
+      if (!resp.ok) throw new Error('File not found');
+      const mdText = await resp.text();
+
+      // Optional: skip front-matter if you use it
+      const cleanMd = mdText.replace(/^---[\s\S]*?---\n/, '');
+
+      contentEl.innerHTML = marked.parse(cleanMd);
+    } catch (err) {
+      contentEl.innerHTML = '<p class="text-red-400">Could not load note. Make sure the file exists in the repo.</p>';
+    }
+  }
+
+  function closeNote() {
+    document.getElementById('note-modal').classList.add('hidden');
+  }
+
+  // Load on page ready
+  window.addEventListener('DOMContentLoaded', loadNotes);
+</script>
         </div>
 
         <!-- Add more cards here by copying the div above -->
